@@ -86,7 +86,7 @@ The next version takes lessons learned in v1 into consideration and adds user au
 ### V4: Usage Statistics Dashboard
 
 - **Add usage statistics dashboard for each signed-in user**
-  - KM swam in plans
+  - Total distance (km) swam in plans
   - Number of plans exported
   - Number of plans donated
   - Comparative statistics with other user behaviour
