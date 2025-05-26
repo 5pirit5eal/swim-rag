@@ -7,14 +7,14 @@ A web application for generating, recommeding and sharing training plans for swi
 The web application is hosted in Google Cloud. The following components are involved:
 
 1. Identity-Aware Proxy (IAP) to authenticate and identify users
-2. Single-Page Frontend hosted in Cloud Run implemented in React
+2. Single-Page Frontend hosted in Cloud Run implemented in Vue.js
 3. Backend hosted in Cloud Run implemented in Go and Langchaingo
 4. PostgreSQL database (managed) with pgvector
 
 ```plaintext
 +---------------------+                                   gRPC/HTTPS                                +---------------------+
 | User's Browser      |<--------------------------------------------------------------------------->| Cloud Run Backend   | <--> PostgreSQL
-| (React)             |                                                                             | (Go)                |
+| (Vue.js)            |                                                                             | (Go)                |
 |                     |     HTTPS (with IAP)      +---------------------+                           +---------------------+
 +---------------------+<------------------------> | Cloud Run Frontend  |                                       |
           ^                                       | (with IAP)          |                                       | (Verifies ID Token)

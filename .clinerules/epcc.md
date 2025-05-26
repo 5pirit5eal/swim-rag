@@ -1,6 +1,5 @@
 ---
-description: 
-globs: 
+description: Main Software Engineering Process
 alwaysApply: true
 ---
 # Protocol: Integrated EPCC Workflow (with Task List Management)
@@ -14,24 +13,23 @@ flowchart TD
     A["Start: User Problem/Feature Request"] -- Switch to Plan Mode --> B("EXPLORE Phase")
     B -- User provides context --> B1["AI: Read Context (NO code)"]
     B1 -- Context Gathered --> C("PLAN Phase")
-    C -- User requests plan --> C1["AI: 'Think...' to Develop Plan"]
+    C --> C1["User: Choose thinking depth to develop Plan"]
     C1 --> C2_Decision{"User: Does this plan require a detailed task breakdown or new feature task list?"}
-    C2_Decision -- Yes --> C2_InvokeTaskCreate["Invoke CREATE TASK rule (...) -> Create/Update Task List"]
-    C2_Decision -- No --> C2_DirectPlan["Formulate Plan in Chat"]
-    C2_InvokeTaskCreate -- Task List Ready --> C3["User Reviews Overall Plan & Detailed Task List"]
+    C2_Decision -- Yes --> C2_InvokeTaskCreate["AI: Invoke CREATE TASK rule (...) -> Create/Update Task List"]
+    C2_Decision -- No --> C2_DirectPlan["AI: Formulate Plan in Chat"]
+    C2_InvokeTaskCreate -- Task List Ready --> C3["User: Reviews Overall Plan & Detailed Task List"]
     C2_DirectPlan -- Plan formulated --> C3
     C3 -- Plan NOT OK --> B
     C3 -- Plan OK --> C3_Decision["AI: Document Overall Plan Approach"]
     C3_Decision -- Switch to Task Mode --> D("CODE Phase")
     D --> D1["AI: Implement Solution"]
     D1 -- If using task list --> D1_InvokeTaskExecute["Invoke 'EXECUTE TASK rule'"]
-    D1_InvokeTaskExecute -- Finished task list --> D1
-    D1 -- Overall Code Implementation Complete --> E("COMMIT & DOCUMENT Phase")
-    E -- User confirms code --> E1["Invoke 'EXECUTE TASK rule' (...) for final task list wrap-up"]
-    E1 --> E1_UpdateProjectDocs["AI: Update general Project Docs (READMEs, Changelogs, etc.)"]
-    E1_UpdateProjectDocs -- Project Docs Updated --> E2["AI: Final Documentation Updates"]
-    E2 -- User confirms documentation --> E3["AI: Commit Code and request creation of PR"]
-    E3 -- "Pull-Request Requested" --> E4["AI: Create Pull Request"]
+    D1_InvokeTaskExecute -- List completed --> E("COMMIT & DOCUMENT Phase")
+    D1 -- Overall Code Implementation Complete --> E
+    E -- "Switch to Plan Mode" --> E1["AI: Update MEMORY BANK documents"]
+    E1 --> E2["AI: General Documentation Updates"]
+    E2 -- User approves documentation --> E3["AI: Prompt User to commit code and request creation of PR"]
+    E3 -- "Pull-Request Requested" --> E4["AI: Draft Pull Request"]
     E3 -- "Pull-Request NOT Requested" --> F
     E4 --> F["Task End: EPCC Cycle Completed"]
 ```
@@ -52,13 +50,14 @@ flowchart TD
   - Request relevant files, documentation, URLs, or codebase areas from the user.
   - Analyze provided context. Request clarification on areas with insufficient information.
   - Summarize understanding and clarify doubts.
+  - Interact with the User until sufficient context was gathered to complete the request
 - **Transition:** Once context is clear, proceed to the **PLAN Phase**.
 
 ### C. PLAN Phase (Node C, C1, C2, C2_Decision, C2_InvokeTaskCreate, C3 in diagram)
 
 - **Objective:** Develop a strategic plan, and if necessary, a detailed task breakdown in a task list file.
 - **AI Action (C1):**
-  - Prompt: "Let's create a plan. How deeply should I 'think' about this (basic, thorough, deep)?"
+  - Prompt the User: "Let's create a plan. How deeply should I 'think' about this (basic, thorough, deep)?"
     - basic: Plan with straightforward implementation and assumptions within best-practice
     - thorough: Complex plan with reflection on implementation steps, trade-offs and optimizations
     - deep: Consider 2-3 ways of implementation, compare the options regarding trade-offs, fit for the task and the amount of work. Challenge the plan and actively search for ways to optimize.
@@ -73,7 +72,7 @@ flowchart TD
   - **If Plan NOT OK:** Return to **EXPLORE Phase (B)** or refine plan/task list.
   - **If Plan OK:**
     - Document this overall strategic approach using the task list documents.
-    - Prompt User to deactivate the CREATE TASK rule and switch to TASK MODE.
+    - Prompt User to switch to TASK MODE.
     - Proceed to **CODE Phase**.
 
 ### D. CODE Phase (Node D, D1, D1_InvokeTaskExecute in diagram)
@@ -88,25 +87,29 @@ flowchart TD
     - **Execute the `.clinerules/work-task.md` for THAT specific task.** This includes marking it complete, documenting decisions/challenges *for that task* in the task list's Implementation Plan, noting relevant files *for that task*, and identifying any new sub-tasks emerging from it.
 - **Transition:** When all planned coding and tasks from the list (for the current scope) are complete, inform the user and proceed to **COMMIT & DOCUMENT Phase**.
 
-### E. COMMIT & DOCUMENT Phase (Node E, E1, E1_InvokeTaskExecuteFinal, E1_UpdateProjectDocs, E2, E3, E4 in diagram)
+### E. COMMIT & DOCUMENT Phase (Node E, E1, E2, E3, E4 in diagram)
 
 - **Objective:** Finalize code, update, and commit all code and relevant documentation including the task list and broader project docs.
-- **AI Action (E1):** Begin final documentation updates.
-- **Final Task List Update (E1_InvokeTaskExecuteFinal):**
+- **AI Action (E1):**
+  - Promt User to switch to PLAN Mode.
+  - Begin final documentation updates.
+- **MEMORY BANK Update (E1):**
   - State: "Let's integrate our completed task list into the MEMORY BANK documents using the EXECUTE TASK rule."
-  - **Execute relevant parts of `.clinerules/work-task.md` again.** This might involve removing the task file and updating parts of the MEMORY BANK documents described in `.clinerules/memory.md`.
-- **Update General Project Docs (E1_UpdateProjectDocs):**
-  - Prompt: "Now that the main work is done and the MEMORY BANK is updated, do we need to update any general project documentation like READMEs or Changelogs based on this feature/fix?"
+  - **Modify relevant documents mentioned in `.clinerules/memory.md`.** This might involve removing the task file and updating parts of the MEMORY BANK documents described in `.clinerules/memory.md`.
+- **Update General Project Docs (E2):**
+  - State: "Now that the main work is done and the MEMORY BANK is updated, lets update other general project documentation like API Documentation or Changelogs based on this feature/fix"
+- **User Review (C3)**
   - Assist or perform updates as instructed.
 - **AI Action (E3, E4):**
   - Confirm code with user
-  - Prompt the user to commit the code using the git cli
+  - Prompt the user to commit the code using the git cli (e.g. `git add --all && git commit -m "feat: ..."`)
   - If applicable, prompt the user to create a Pull-Request
-- **Transition:** The cycle is complete.
+    - **If PR requested** Draft a PR summary
+    - **If PR rejected** Crack a joke fitting the request.
+- **Transition:** Transition to the final steps of the EPCC cycle
 
 ### F. End: EPCC Cycle Complete (Node F in diagram)
 
-- Confirm with the user that the entire process for this problem/feature is satisfactorily complete.
 - Summarize the steps taken in this EPCC cycle.
 
 This integrated protocol provides a robust framework, ensuring that strategic planning (EPCC) is seamlessly connected with granular task management. Remember to explicitly mention when you are switching to or referencing the sub-protocols (`.clinerules/create-task.md` and `.clinerules/work-task.md`).
