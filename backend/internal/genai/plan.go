@@ -76,7 +76,7 @@ func (gc *GoogleGenAIClient) ChoosePlan(ctx context.Context, q string, docs []sc
 	}
 	logger.Debug("Successful answer from LLM", "answer", answer)
 
-	var cr models.ChooseResponse
+	var cr models.ChoiceResult
 	err = json.Unmarshal([]byte(answer.Text()), &cr)
 	if err != nil {
 		logger.Error("Error parsing LLM response", httplog.ErrAttr(err), "raw_response", answer)

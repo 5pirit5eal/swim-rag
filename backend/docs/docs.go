@@ -159,7 +159,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Query results",
                         "schema": {
-                            "$ref": "#/definitions/models.QueryResponse"
+                            "$ref": "#/definitions/models.RAGResponse"
                         }
                     },
                     "400": {
@@ -313,7 +313,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.QueryResponse": {
+        "models.RAGResponse": {
             "description": "Response containing a generated or selected swim training plan",
             "type": "object",
             "properties": {

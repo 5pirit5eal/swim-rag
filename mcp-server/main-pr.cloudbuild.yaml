@@ -1,0 +1,61 @@
+steps:
+  # Install dependencies
+  - name: "ghcr.io/astral-sh/uv:python3.12-bookworm-slim"
+    entrypoint: /bin/bash
+    args:
+      - -c
+      - |
+        uv sync --group dev
+    dir: "mcp-server"
+  # Run code formatting check
+  - name: "ghcr.io/astral-sh/uv:python3.12-bookworm-slim"
+    entrypoint: /bin/bash
+    args:
+      - -c
+      - |
+        uv run ruff format . --diff
+        uv run ruff check --select I .
+    dir: "mcp-server"
+  # Run validation (linting, type checking, security)
+  - name: "ghcr.io/astral-sh/uv:python3.12-bookworm-slim"
+    entrypoint: /bin/bash
+    args:
+      - -c
+      - |
+        mkdir -p .mypy_cache
+        uv run mypy . --cache-dir .mypy_cache
+        uv run bandit -c pyproject.toml -ll -x ./.venv/ -r .
+    dir: "mcp-server"
+  # TODO: Run tests
+  # - name: "ghcr.io/astral-sh/uv:python3.12-bookworm-slim"
+  #   entrypoint: /bin/bash
+  #   args:
+  #     - -c
+  #     - |
+  #       # Run unit tests if they exist
+  #       if [ -d "tests/unit_tests" ]; then
+  #         uv run --group dev pytest tests/unit_tests/test_* --junitxml=${SHORT_SHA}_unit_test_log.xml || true
+  #       fi
+  #       # Run integration tests if they exist
+  #       if [ -d "tests/integration_tests" ]; then
+  #         uv run --group dev pytest tests/integration_tests/test_* --junitxml=${SHORT_SHA}_integration_test_log.xml || true
+  #       fi
+  #       # Run system tests if they exist
+  #       if [ -d "tests/system_tests" ]; then
+  #         uv run --group dev pytest tests/system_tests/test_* --junitxml=${SHORT_SHA}_system_test_log.xml || true
+  #       fi
+  #       # If no test directories exist, just run pytest on any test files found
+  #       if [ ! -d "tests" ]; then
+  #         find . -name "test_*.py" -o -name "*_test.py" | head -1 > /dev/null && uv run --group dev pytest --junitxml=${SHORT_SHA}_test_log.xml || echo "No tests found"
+  #       fi
+  #   dir: "mcp-server"
+options:
+  logging: CLOUD_LOGGING_ONLY
+  automapSubstitutions: true
+  volumes:
+    - name: "uv-cache"
+      path: "/root/.cache/uv"
+  env:
+    - "UV_CACHE_DIR=/root/.cache/uv"
+    - "PROJECT_ID=${_PROJECT_ID}"
+    - "REGION=${_REGION}"

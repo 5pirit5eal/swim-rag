@@ -20,15 +20,9 @@ type QueryRequest struct {
 	Method  string         `json:"method,omitempty" example:"generate" validate:"oneof=choose generate"`                             // Method can be either 'choose' (select existing plan) or 'generate' (create new plan)
 }
 
-type RAGResponse struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Table       Table  `json:"table"`
-}
-
-// QueryResponse represents the response from the RAG query system
+// RAGResponse represents the response after a query to the RAG system
 // @Description Response containing a generated or selected swim training plan
-type QueryResponse struct {
+type RAGResponse struct {
 	Title       string `json:"title" example:"Advanced Freestyle Training"`
 	Description string `json:"description" example:"A comprehensive training plan for improving freestyle technique"`
 	Table       Table  `json:"table"`

@@ -147,7 +147,7 @@ func (rs *RAGService) DonatePlanHandler(w http.ResponseWriter, req *http.Request
 // @Accept json
 // @Produce json
 // @Param query body models.QueryRequest true "Query parameters"
-// @Success 200 {object} models.QueryResponse "Query results"
+// @Success 200 {object} models.RAGResponse "Query results"
 // @Failure 400 {string} string "Bad request"
 // @Failure 500 {string} string "Internal server error"
 // @Router /query [post]

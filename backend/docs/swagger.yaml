@@ -70,7 +70,7 @@ definitions:
     required:
     - content
     type: object
-  models.QueryResponse:
+  models.RAGResponse:
     description: Response containing a generated or selected swim training plan
     properties:
       description:
@@ -214,7 +214,7 @@ paths:
         "200":
           description: Query results
           schema:
-            $ref: '#/definitions/models.QueryResponse'
+            $ref: '#/definitions/models.RAGResponse'
         "400":
           description: Bad request
           schema:

@@ -20,3 +20,8 @@ type Feedback struct {
 	CreatedAt string `db:"created_at"`
 	UpdatedAt string `db:"updated_at"`
 }
+
+type ChoiceResult struct {
+	Idx         int    `json:"index" example:"1"`
+	Description string `json:"description" example:"Selected plan based on your requirements"`
+}
